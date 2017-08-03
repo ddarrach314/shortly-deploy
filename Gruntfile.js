@@ -3,16 +3,16 @@ module.exports = function(grunt) {
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
     clean: {
-      contents: ['dist/*']
+      contents: ['public/dist/*']
     },
 
     concat: {
       options: {
-        separator: ';',
+        separator: ';\n',
       },
       dist: {
-        src: 'public/**/*.js',
-        dest: 'dist/built.js',
+        src: 'public/client/*.js',
+        dest: 'public/dist/built.js',
       },
     },
 
@@ -34,7 +34,7 @@ module.exports = function(grunt) {
     uglify: {
       my_target: {
         files: {
-          'dist/built.min.js': 'dist/built.js'
+          'public/dist/built.min.js': 'public/dist/built.js'
         }
       }
     },
@@ -43,24 +43,24 @@ module.exports = function(grunt) {
       target: ['public/client/*.js']
     },
 
-    cssmin: {
-    },
-
     watch: {
       scripts: {
         files: [
           'public/client/**/*.js',
           'public/lib/**/*.js',
         ],
-        tasks: [
-          'clean',
-          'concat',
-          'uglify'
-        ]
-      },
-      css: {
-        files: 'public/*.css',
-        tasks: ['cssmin']
+        tasks: 'build'
+      }
+    },
+
+    cssmin: {
+      target: {
+        files: [{
+          expand: true,
+          src: ['public/*.css'],
+          dest: '',
+          ext: '.min.css'
+        }]
       }
     },
 
@@ -90,12 +90,12 @@ module.exports = function(grunt) {
 
   grunt.registerTask('test', [
     'mochaTest',
-    'esLint'
+    'eslint'
   ]);
   
-  grunt.registerTask('prep', ['concat', 'uglify'] )
+  grunt.registerTask('prep', ['concat', 'uglify', 'cssmin'] )
 
-  grunt.registerTask('build', ['test', 'prep']);
+  grunt.registerTask('build', ['test', 'clean', 'prep']);
 
   grunt.registerTask('upload', function(n) {
     if (grunt.option('prod')) {
